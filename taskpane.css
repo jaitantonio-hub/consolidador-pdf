@@ -42,6 +42,10 @@ body {
     background-color: var(--bg-color);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+    position: relative;
 }
 
 /* ==========================================================================
@@ -53,6 +57,9 @@ body {
     height: 100vh;
     max-height: 100vh;
     overflow: hidden;
+    position: relative;
+    z-index: 10;
+    background-color: var(--bg-color);
 }
 
 /* Encabezado */
@@ -493,10 +500,11 @@ body {
    Área Oculta de Impresión de PDF (Clásica y Formal)
    ========================================================================== */
 .pdf-render-area {
-    position: absolute;
-    left: -9999px;
+    position: fixed;
     top: 0;
-    width: 800px; /* Ancho de renderizado aproximado a A4 */
+    left: 0;
+    width: 800px; /* Ancho de renderizado aproximado a A4/Carta */
+    z-index: -1; /* Detrás de la interfaz de la aplicación principal */
     background-color: #ffffff;
     color: #000000;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -504,7 +512,7 @@ body {
 
 /* Contenedor del PDF */
 .pdf-document {
-    padding: 20px;
+    padding: 30px; /* Margen elegante de impresión */
 }
 
 /* Bloque individual de Correo */
@@ -514,21 +522,35 @@ body {
     font-size: 13.5px;
     line-height: 1.45;
     color: #000000;
-    /* Salto de página forzado */
-    page-break-after: always;
-    break-after: page;
+    font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Quitar el salto de página en el último correo si lo desea el usuario */
-.pdf-email-block:last-child {
-    page-break-after: auto;
-    break-after: auto;
+/* Marca de Outlook estilo Impresión */
+.pdf-outlook-brand {
+    display: flex;
+    align-items: center;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    color: #323130;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
-/* Cabecera de Correo en el PDF (Estilo Clásico Imprimir de Outlook) */
+.pdf-outlook-brand-text {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    color: #323130;
+    font-weight: 600;
+}
+
+/* Línea de separación arriba del subject */
+.pdf-email-top-divider {
+    border-top: 1.5px solid #edebe9;
+    margin-bottom: 12px;
+}
+
+/* Cabecera de Correo en el PDF */
 .pdf-email-header {
-    border-bottom: 1.5px solid #000000;
-    padding-bottom: 12px;
     margin-bottom: 16px;
     font-family: "Segoe UI", Arial, sans-serif;
     page-break-inside: avoid;
@@ -536,64 +558,63 @@ body {
 }
 
 .pdf-email-subject {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: #000000;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Línea divisoria abajo del Asunto */
+.pdf-email-subject-divider {
+    border-top: 1px solid #edebe9;
+    margin-bottom: 12px;
 }
 
 .pdf-email-meta-row {
     margin-bottom: 4px;
-    font-size: 12.5px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #323130;
 }
 
 .pdf-email-meta-label {
-    font-weight: 700;
+    font-weight: 600;
     display: inline-block;
-    width: 65px;
+    width: 55px; /* Alineación de metadatos */
+    color: #323130;
 }
 
-/* Estilo para los adjuntos en el PDF */
-.pdf-attachments-list {
-    margin-top: 8px;
-    padding: 6px 10px;
-    background-color: #f3f2f1;
-    border: 1.5px solid #a19f9d;
-    border-radius: 2px;
-    font-size: 11px;
-    display: inline-block;
-    max-width: 100%;
+/* Archivos Adjuntos Estilo Outlook */
+.pdf-attachments-block {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12px;
+    color: #323130;
     page-break-inside: avoid;
     break-inside: avoid;
 }
 
-.pdf-attachments-title {
-    font-weight: 700;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-}
-
-.pdf-attachment-item {
-    display: inline-block;
-    margin-right: 12px;
+.pdf-attachments-summary {
+    font-weight: 600;
+    margin-bottom: 2px;
     color: #323130;
 }
 
-.pdf-attachment-name {
-    text-decoration: underline;
-}
-
-.pdf-attachment-size {
-    color: #605e5c;
+.pdf-attachments-filenames {
+    font-size: 12px;
+    color: #323130;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* Cuerpo del correo en el PDF */
 .pdf-email-body {
-    padding-top: 8px;
+    padding-top: 12px;
     word-wrap: break-word;
-    font-size: 13px;
+    font-size: 13.5px;
+    color: #000000;
 }
 
 /* Estilos de impresión para forzar limpieza y compatibilidad */

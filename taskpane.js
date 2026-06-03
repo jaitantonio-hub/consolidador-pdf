@@ -86,7 +86,11 @@ function initApp(info) {
     if (btnBack) btnBack.addEventListener("click", resetApp);
 
     // Detección segura de si se ejecuta dentro de Outlook
-    const isOutlook = info && info.host === Office.HostType.Outlook;
+    // Si viene de Outlook, la URL contiene parámetros como "host" o "_host_info"
+    const hasOutlookParams = window.location.search.toLowerCase().includes("host") || 
+                             window.location.search.toLowerCase().includes("_host_info");
+    
+    const isOutlook = (info && info.host === Office.HostType.Outlook) || hasOutlookParams;
     
     if (isOutlook) {
         console.log("Detectado entorno oficial de Outlook. Iniciando Add-in...");
@@ -106,13 +110,26 @@ try {
     console.warn("Error al registrar Office.onReady, se usará el fallback:", e);
 }
 
-// 2. Fallback de seguridad: si no se ha inicializado tras 800ms, forzar modo simulación
-setTimeout(() => {
-    if (!isInitialized) {
-        console.log("Office.onReady no respondió en 800ms. Forzando modo de simulación local...");
-        initApp(null);
-    }
-}, 800);
+// 2. Fallback de seguridad para modo simulación (Solo si NO está cargando dentro de Outlook)
+const hasOutlookParams = window.location.search.toLowerCase().includes("host") || 
+                         window.location.search.toLowerCase().includes("_host_info");
+
+if (!hasOutlookParams) {
+    setTimeout(() => {
+        if (!isInitialized) {
+            console.log("Office.onReady no respondió en el tiempo límite. Activando modo simulación...");
+            initApp(null);
+        }
+    }, 2500); // 2.5 segundos de margen en navegadores estándar
+} else {
+    // Si está en Outlook, no activamos simulación por tiempo de espera.
+    // Solo mostramos advertencia si el SDK de Microsoft falla tras 12 segundos.
+    setTimeout(() => {
+        if (!isInitialized) {
+            showError("El SDK de Office (Office.js) está tardando en cargar debido a la conexión. Por favor, recarga el panel.");
+        }
+    }, 12000);
+}
 
 // ==========================================================================
 // Configuración de Modo Outlook Oficial
@@ -404,20 +421,35 @@ function generateUnifiedPDF(emails) {
             const blockClass = (!isLast && usePageBreak) ? "pdf-email-block" : "pdf-email-block pdf-no-page-break";
 
             documentHtml += `
-                <div class="${blockClass}" style="${(!isLast && usePageBreak) ? 'page-break-after: always; break-after: page;' : ''}">
-                    <!-- Cabecera Clásica -->
+                <div class="${blockClass}" style="${(!isLast && usePageBreak) ? 'page-break-after: always; break-after: page; margin-bottom: 30px;' : ''}">
+                    <!-- Cabecera Oficial Outlook -->
+                    <div class="pdf-outlook-brand">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M21.5 5.5H10.5C9.4 5.5 8.5 6.4 8.5 7.5V16.5C8.5 17.6 9.4 18.5 10.5 18.5H21.5C22.6 18.5 23.5 17.6 23.5 16.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5Z" fill="#0078D4"/>
+                            <path d="M21.5 7.5L16 11.5L10.5 7.5V9.5L16 13.5L21.5 9.5V7.5Z" fill="white"/>
+                            <path d="M10.5 3.5H3.5C2.4 3.5 1.5 4.4 1.5 5.5V18.5C1.5 19.6 2.4 20.5 3.5 20.5H10.5C11.6 20.5 12.5 19.6 12.5 18.5V5.5C12.5 4.4 11.6 3.5 10.5 3.5Z" fill="#106EBE"/>
+                            <path d="M4.5 7.5H7.5V9.5H5.5V11.5H7.5V13.5H5.5V14.5H7.5V16.5H4.5V7.5Z" fill="white"/>
+                        </svg>
+                        <span class="pdf-outlook-brand-text">Outlook</span>
+                    </div>
+                    
+                    <div class="pdf-email-top-divider"></div>
+                    
                     <div class="pdf-email-header">
                         <div class="pdf-email-subject">${escapeHtml(email.subject)}</div>
+                        
+                        <div class="pdf-email-subject-divider"></div>
+                        
                         <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">De:</span>
+                            <span class="pdf-email-meta-label">Desde</span>
                             <span>${escapeHtml(email.from)}</span>
                         </div>
                         <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">Fecha:</span>
+                            <span class="pdf-email-meta-label">Fecha</span>
                             <span>${escapeHtml(email.date)}</span>
                         </div>
                         <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">Para:</span>
+                            <span class="pdf-email-meta-label">Para</span>
                             <span>${escapeHtml(email.to.join("; "))}</span>
                         </div>
             `;
@@ -426,28 +458,35 @@ function generateUnifiedPDF(emails) {
             if (email.cc && email.cc.length > 0) {
                 documentHtml += `
                         <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">CC:</span>
+                            <span class="pdf-email-meta-label">CC</span>
                             <span>${escapeHtml(email.cc.join("; "))}</span>
                         </div>
                 `;
             }
 
-            // Archivos adjuntos opcionales impresos como texto
+            // Archivos adjuntos opcionales impresos como texto (Estilo Outlook)
             if (showAttachments && email.attachments && email.attachments.length > 0) {
+                const count = email.attachments.length;
+                const totalSize = email.attachments.reduce((acc, att) => acc + (att.size || 0), 0);
+                const sizeStr = totalSize > 0 ? formatBytes(totalSize) : "";
+                
+                const labelAdjunto = count === 1 ? "archivo adjunto" : "archivos adjuntos";
+                const sizeParen = sizeStr ? ` (${sizeStr})` : "";
+                
                 documentHtml += `
-                        <div class="pdf-attachments-list">
-                            <div class="pdf-attachments-title">Archivos adjuntos:</div>
+                        <div class="pdf-attachments-block">
+                            <div class="pdf-attachments-summary">
+                                📎 ${count} ${labelAdjunto}${sizeParen}
+                            </div>
+                            <div class="pdf-attachments-filenames">
                 `;
+                
                 email.attachments.forEach(att => {
-                    const sizeStr = att.size ? formatBytes(att.size) : "";
-                    documentHtml += `
-                        <div class="pdf-attachment-item">
-                            📎 <span class="pdf-attachment-name">${escapeHtml(att.name)}</span>
-                            ${sizeStr ? `<span class="pdf-attachment-size">(${sizeStr})</span>` : ""}
-                        </div>
-                    `;
+                    documentHtml += `${escapeHtml(att.name)};<br>`;
                 });
+                
                 documentHtml += `
+                            </div>
                         </div>
                 `;
             }
@@ -464,7 +503,7 @@ function generateUnifiedPDF(emails) {
 
         documentHtml += `</div>`;
 
-        // Renderizar el HTML en el contenedor invisible
+        // Renderizar el HTML en el contenedor invisible (detrás de la UI principal)
         renderArea.innerHTML = documentHtml;
 
         // Generar un nombre de archivo por defecto
@@ -488,7 +527,9 @@ function generateUnifiedPDF(emails) {
             html2canvas:  { 
                 scale: 2,           // Mayor calidad visual
                 useCORS: true,      // Permitir imágenes externas si tienen CORS
-                logging: false
+                logging: false,
+                windowWidth: 800,   // Forzar ancho virtual de 800px para evitar recortes en iframe de Outlook
+                windowHeight: renderArea.scrollHeight || 1000
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
             pagebreak:    { mode: ['css', 'legacy'] } // Respetar page-break-after de CSS
