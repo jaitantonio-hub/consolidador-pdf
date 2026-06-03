@@ -212,7 +212,7 @@ function updateSelectionUI() {
                     <path d="M3 8L10.8906 13.2604C11.5624 13.7083 12.4376 13.7083 13.1094 13.2604L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <p>Ningún correo seleccionado</p>
-                <small>Marca las casillas de verificación de hasta 5 correos en la bandeja de entrada para comenzar.</small>
+                <small>Marca las casillas de verificación de hasta 100 correos en la bandeja de entrada para comenzar.</small>
             </div>
         `;
         btnConsolidate.disabled = true;
@@ -242,7 +242,7 @@ function updateSelectionUI() {
         optionsPanel.classList.remove("hidden");
 
         // Reglas de habilitación
-        if (count > 5) {
+        if (count > 100) {
             btnConsolidate.disabled = true;
             warningBanner.classList.remove("hidden");
         } else {
@@ -518,14 +518,15 @@ function generateUnifiedPDF(emails) {
 
         // Opciones de configuración para html2pdf
         const opt = {
-            margin:       15, // Márgenes en mm (aprox. 0.6 pulgadas)
+            margin:       [20, 15, 20, 15], // Márgenes en mm: arriba, izquierda, abajo, derecha
             filename:     defaultFilename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2,           // Mayor calidad visual
                 useCORS: true,      // Permitir imágenes externas si tienen CORS
                 logging: false,
-                windowWidth: 800    // Forzar ancho virtual de 800px para evitar recortes en iframe de Outlook
+                width: 800,         // Forzar ancho de captura de 800px para evitar recortes a la derecha
+                windowWidth: 800    // Forzar ancho virtual de 800px
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
             pagebreak:    { mode: ['css', 'legacy'] } // Respetar page-break-after de CSS
@@ -535,6 +536,50 @@ function generateUnifiedPDF(emails) {
         html2pdf()
             .set(opt)
             .from(documentHtml)
+            .toPdf()
+            .get('pdf')
+            .then((pdf) => {
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                
+                // Obtener fecha y hora actual en formato español (Colombia/Latinoamérica)
+                const generationDateStr = new Date().toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                // Obtener correo del usuario
+                const userEmail = isSimulationMode ? "jaime.tarazona@outlook.com" : (Office.context.mailbox.userProfile ? Office.context.mailbox.userProfile.emailAddress : "usuario@outlook.com");
+
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    
+                    // Configurar estilo del texto
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(100, 100, 100);
+                    
+                    // Dibujar Encabezado (y = 12)
+                    // Fecha y hora a la izquierda
+                    pdf.text(generationDateStr, 15, 12);
+                    // Correo de origen a la derecha
+                    pdf.text(`Origen: ${userEmail}`, pageWidth - 15, 12, { align: 'right' });
+                    
+                    // Dibujar línea fina debajo del encabezado
+                    pdf.setDrawColor(220, 220, 220);
+                    pdf.setLineWidth(0.2);
+                    pdf.line(15, 14, pageWidth - 15, 14);
+                    
+                    // Dibujar Pie de página (y = pageHeight - 12)
+                    const footerText = `Página ${i} de ${totalPages}`;
+                    pdf.text(footerText, pageWidth - 15, pageHeight - 12, { align: 'right' });
+                }
+            })
             .save()
             .then(() => {
                 showSuccessScreen(defaultFilename, emails.length);
