@@ -500,16 +500,23 @@ body {
    Área Oculta de Impresión de PDF (Clásica y Formal)
    ========================================================================== */
 .pdf-render-area {
-    display: none !important; /* Ya no se requiere en el layout de pantalla */
+    position: fixed;
+    top: 0;
+    left: -9999px;
+    width: 624px;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: "Segoe UI", Arial, sans-serif;
+    z-index: -9999;
 }
 
 /* Contenedor del PDF */
 .pdf-document {
-    width: 800px; /* Ancho de renderizado fijo para evitar recortes lateralmente */
+    width: 624px;
     background-color: #ffffff;
     color: #000000;
     font-family: "Segoe UI", Arial, sans-serif;
-    padding: 30px; /* Margen elegante de impresión */
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -517,7 +524,7 @@ body {
 .pdf-email-block {
     background-color: #ffffff;
     margin-bottom: 24px;
-    font-size: 13.5px;
+    font-size: 14.5px;
     line-height: 1.45;
     color: #000000;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -525,8 +532,8 @@ body {
 
 /* Forzar salto de página antes del bloque */
 .pdf-page-break-before {
-    break-before: page;
-    page-break-before: always;
+    break-before: page !important;
+    page-break-before: always !important;
 }
 
 /* Marca de Outlook estilo Impresión */
@@ -534,7 +541,7 @@ body {
     display: flex;
     align-items: center;
     font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     color: #323130;
     font-weight: 600;
     margin-bottom: 8px;
@@ -542,7 +549,7 @@ body {
 
 .pdf-outlook-brand-text {
     font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     color: #323130;
     font-weight: 600;
 }
@@ -562,7 +569,7 @@ body {
 }
 
 .pdf-email-subject {
-    font-size: 22px;
+    font-size: 23.5px;
     font-weight: 700;
     margin-bottom: 8px;
     color: #000000;
@@ -577,7 +584,7 @@ body {
 
 .pdf-email-meta-row {
     margin-bottom: 4px;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
     color: #323130;
 }
@@ -585,7 +592,7 @@ body {
 .pdf-email-meta-label {
     font-weight: 600;
     display: inline-block;
-    width: 55px; /* Alineación de metadatos */
+    width: 65px; /* Alineación de metadatos */
     color: #323130;
 }
 
@@ -594,7 +601,7 @@ body {
     margin-top: 12px;
     margin-bottom: 12px;
     font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #323130;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -607,7 +614,7 @@ body {
 }
 
 .pdf-attachments-filenames {
-    font-size: 12px;
+    font-size: 13px;
     color: #323130;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -617,8 +624,20 @@ body {
 .pdf-email-body {
     padding-top: 12px;
     word-wrap: break-word;
-    font-size: 13.5px;
+    font-size: 14.5px;
     color: #000000;
+}
+
+/* Forzar que imágenes y tablas no se desborden de la página (fuera de @media print para que actúe en html2canvas) */
+.pdf-document img, .pdf-email-body img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+.pdf-document table, .pdf-email-body table {
+    max-width: 100% !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+    word-wrap: break-word !important;
 }
 
 /* Estilos de impresión para forzar limpieza y compatibilidad */
@@ -630,10 +649,6 @@ body {
     .pdf-email-header {
         page-break-inside: avoid;
         break-inside: avoid;
-    }
-    img {
-        max-width: 100% !important;
-        height: auto !important;
     }
 }
 
@@ -652,6 +667,6 @@ body {
 
 /* Forzar el ancho del contenedor temporal creado por html2pdf en OWA */
 .html2pdf__container {
-    width: 800px !important;
-    max-width: 800px !important;
+    width: 624px !important;
+    max-width: 624px !important;
 }

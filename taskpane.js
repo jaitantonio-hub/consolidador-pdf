@@ -417,20 +417,16 @@ function generateUnifiedPDF(emails) {
 
         emails.forEach((email, index) => {
             const isFirst = index === 0;
-            
-            // Inyectar el helper oficial html2pdf__page-break antes de cada correo (excepto el primero)
-            if (!isFirst && usePageBreak) {
-                documentHtml += `<div class="html2pdf__page-break"></div>`;
-            }
+            const breakClass = (!isFirst && usePageBreak) ? " pdf-page-break-before" : "";
 
             const blockClass = "pdf-email-block";
 
             documentHtml += `
-                <div class="pdf-document">
+                <div class="pdf-document${breakClass}">
                     <div class="${blockClass}" style="margin-bottom: 30px;">
                         <!-- Cabecera Oficial Outlook -->
                         <div class="pdf-outlook-brand">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
                                 <path d="M21.5 5.5H10.5C9.4 5.5 8.5 6.4 8.5 7.5V16.5C8.5 17.6 9.4 18.5 10.5 18.5H21.5C22.6 18.5 23.5 17.6 23.5 16.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5Z" fill="#0078D4"/>
                                 <path d="M21.5 7.5L16 11.5L10.5 7.5V9.5L16 13.5L21.5 9.5V7.5Z" fill="white"/>
                                 <path d="M10.5 3.5H3.5C2.4 3.5 1.5 4.4 1.5 5.5V18.5C1.5 19.6 2.4 20.5 3.5 20.5H10.5C11.6 20.5 12.5 19.6 12.5 18.5V5.5C12.5 4.4 11.6 3.5 10.5 3.5Z" fill="#106EBE"/>
@@ -523,32 +519,39 @@ function generateUnifiedPDF(emails) {
 
         // Opciones de configuración para html2pdf
         const opt = {
-            margin:       25.4, // Margen Norma APA (7ª Edición): 2.54 cm (1 pulgada) en todos los bordes
+            margin:       [19, 25.4], // Margen: 1.9 cm arriba/abajo, 2.54 cm izquierda/derecha (Norma APA lateral)
             filename:     defaultFilename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
                 scale: 2,           // Mayor calidad visual
                 useCORS: true,      // Permitir imágenes externas si tienen CORS
                 logging: false,
-                width: 800,         // Forzar ancho de captura de 800px para evitar recortes a la derecha
-                windowWidth: 800    // Forzar ancho virtual de 800px
+                width: 624,         // Forzar ancho de captura de 624px (ancho exacto del área imprimible de Letter a 96 DPI)
+                windowWidth: 624    // Forzar ancho virtual de 624px
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
             pagebreak:    { 
-                mode: ['css', 'legacy']
+                mode: ['css']       // Usamos el modo nativo CSS que buscará break-before / page-break-before
             }
         };
 
-        // Ejecutar html2pdf pasando la cadena de texto HTML directamente
+        // Inyectar el HTML acumulado en el DOM activo (fuera de pantalla) para que el navegador compute sus alturas
+        renderArea.innerHTML = documentHtml;
+
+        // Ejecutar html2pdf pasando el elemento del DOM activo
         html2pdf()
             .set(opt)
-            .from(documentHtml)
+            .from(renderArea)
             .save()
             .then(() => {
+                // Limpiar el contenedor después de la descarga para liberar memoria
+                renderArea.innerHTML = "";
                 showSuccessScreen(defaultFilename, emails.length);
                 resolve();
             })
             .catch((err) => {
+                // Limpiar el contenedor en caso de error
+                renderArea.innerHTML = "";
                 reject(err);
             });
     });
