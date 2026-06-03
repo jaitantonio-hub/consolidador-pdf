@@ -412,8 +412,8 @@ function generateUnifiedPDF(emails) {
         const usePageBreak = document.getElementById("opt-page-break").checked;
         const showAttachments = document.getElementById("opt-show-attachments").checked;
 
-        // Construir la estructura HTML del documento PDF
-        let documentHtml = `<div class="pdf-document">`;
+        // Construir la estructura HTML del documento PDF (unificado por bloques independientes de primer nivel)
+        let documentHtml = "";
 
         emails.forEach((email, index) => {
             const isFirst = index === 0;
@@ -426,46 +426,47 @@ function generateUnifiedPDF(emails) {
             const blockClass = "pdf-email-block";
 
             documentHtml += `
-                <div class="${blockClass}" style="margin-bottom: 30px;">
-                    <!-- Cabecera Oficial Outlook -->
-                    <div class="pdf-outlook-brand">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
-                            <path d="M21.5 5.5H10.5C9.4 5.5 8.5 6.4 8.5 7.5V16.5C8.5 17.6 9.4 18.5 10.5 18.5H21.5C22.6 18.5 23.5 17.6 23.5 16.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5Z" fill="#0078D4"/>
-                            <path d="M21.5 7.5L16 11.5L10.5 7.5V9.5L16 13.5L21.5 9.5V7.5Z" fill="white"/>
-                            <path d="M10.5 3.5H3.5C2.4 3.5 1.5 4.4 1.5 5.5V18.5C1.5 19.6 2.4 20.5 3.5 20.5H10.5C11.6 20.5 12.5 19.6 12.5 18.5V5.5C12.5 4.4 11.6 3.5 10.5 3.5Z" fill="#106EBE"/>
-                            <path d="M4.5 7.5H7.5V9.5H5.5V11.5H7.5V13.5H5.5V14.5H7.5V16.5H4.5V7.5Z" fill="white"/>
-                        </svg>
-                        <span class="pdf-outlook-brand-text">Outlook</span>
-                    </div>
-                    
-                    <div class="pdf-email-top-divider"></div>
-                    
-                    <div class="pdf-email-header">
-                        <div class="pdf-email-subject">${escapeHtml(email.subject)}</div>
+                <div class="pdf-document">
+                    <div class="${blockClass}" style="margin-bottom: 30px;">
+                        <!-- Cabecera Oficial Outlook -->
+                        <div class="pdf-outlook-brand">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
+                                <path d="M21.5 5.5H10.5C9.4 5.5 8.5 6.4 8.5 7.5V16.5C8.5 17.6 9.4 18.5 10.5 18.5H21.5C22.6 18.5 23.5 17.6 23.5 16.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5Z" fill="#0078D4"/>
+                                <path d="M21.5 7.5L16 11.5L10.5 7.5V9.5L16 13.5L21.5 9.5V7.5Z" fill="white"/>
+                                <path d="M10.5 3.5H3.5C2.4 3.5 1.5 4.4 1.5 5.5V18.5C1.5 19.6 2.4 20.5 3.5 20.5H10.5C11.6 20.5 12.5 19.6 12.5 18.5V5.5C12.5 4.4 11.6 3.5 10.5 3.5Z" fill="#106EBE"/>
+                                <path d="M4.5 7.5H7.5V9.5H5.5V11.5H7.5V13.5H5.5V14.5H7.5V16.5H4.5V7.5Z" fill="white"/>
+                            </svg>
+                            <span class="pdf-outlook-brand-text">Outlook</span>
+                        </div>
                         
-                        <div class="pdf-email-subject-divider"></div>
+                        <div class="pdf-email-top-divider"></div>
                         
-                        <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">Desde</span>
-                            <span>${escapeHtml(email.from)}</span>
-                        </div>
-                        <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">Fecha</span>
-                            <span>${escapeHtml(email.date)}</span>
-                        </div>
-                        <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">Para</span>
-                            <span>${escapeHtml(email.to.join("; "))}</span>
-                        </div>
+                        <div class="pdf-email-header">
+                            <div class="pdf-email-subject">${escapeHtml(email.subject)}</div>
+                            
+                            <div class="pdf-email-subject-divider"></div>
+                            
+                            <div class="pdf-email-meta-row">
+                                <span class="pdf-email-meta-label">Desde</span>
+                                <span>${escapeHtml(email.from)}</span>
+                            </div>
+                            <div class="pdf-email-meta-row">
+                                <span class="pdf-email-meta-label">Fecha</span>
+                                <span>${escapeHtml(email.date)}</span>
+                            </div>
+                            <div class="pdf-email-meta-row">
+                                <span class="pdf-email-meta-label">Para</span>
+                                <span>${escapeHtml(email.to.join("; "))}</span>
+                            </div>
             `;
 
             // Fila CC opcional
             if (email.cc && email.cc.length > 0) {
                 documentHtml += `
-                        <div class="pdf-email-meta-row">
-                            <span class="pdf-email-meta-label">CC</span>
-                            <span>${escapeHtml(email.cc.join("; "))}</span>
-                        </div>
+                            <div class="pdf-email-meta-row">
+                                <span class="pdf-email-meta-label">CC</span>
+                                <span>${escapeHtml(email.cc.join("; "))}</span>
+                            </div>
                 `;
             }
 
@@ -479,11 +480,11 @@ function generateUnifiedPDF(emails) {
                 const sizeParen = sizeStr ? ` (${sizeStr})` : "";
                 
                 documentHtml += `
-                        <div class="pdf-attachments-block">
-                            <div class="pdf-attachments-summary">
-                                📎 ${count} ${labelAdjunto}${sizeParen}
-                            </div>
-                            <div class="pdf-attachments-filenames">
+                            <div class="pdf-attachments-block">
+                                <div class="pdf-attachments-summary">
+                                    📎 ${count} ${labelAdjunto}${sizeParen}
+                                </div>
+                                <div class="pdf-attachments-filenames">
                 `;
                 
                 email.attachments.forEach(att => {
@@ -491,22 +492,21 @@ function generateUnifiedPDF(emails) {
                 });
                 
                 documentHtml += `
+                                </div>
                             </div>
-                        </div>
                 `;
             }
 
             documentHtml += `
-                    </div>
-                    <!-- Cuerpo del Mensaje -->
-                    <div class="pdf-email-body">
-                        ${email.body}
+                        </div>
+                        <!-- Cuerpo del Mensaje -->
+                        <div class="pdf-email-body">
+                            ${email.body}
+                        </div>
                     </div>
                 </div>
             `;
         });
-
-        documentHtml += `</div>`;
 
         // Generar un nombre de archivo por defecto
         let defaultFilename = "correos_consolidados.pdf";
