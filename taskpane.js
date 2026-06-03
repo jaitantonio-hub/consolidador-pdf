@@ -503,9 +503,6 @@ function generateUnifiedPDF(emails) {
 
         documentHtml += `</div>`;
 
-        // Renderizar el HTML en el contenedor invisible (detrás de la UI principal)
-        renderArea.innerHTML = documentHtml;
-
         // Generar un nombre de archivo por defecto
         let defaultFilename = "correos_consolidados.pdf";
         if (emails.length === 1) {
@@ -528,26 +525,22 @@ function generateUnifiedPDF(emails) {
                 scale: 2,           // Mayor calidad visual
                 useCORS: true,      // Permitir imágenes externas si tienen CORS
                 logging: false,
-                windowWidth: 800,   // Forzar ancho virtual de 800px para evitar recortes en iframe de Outlook
-                windowHeight: renderArea.scrollHeight || 1000
+                windowWidth: 800    // Forzar ancho virtual de 800px para evitar recortes en iframe de Outlook
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
             pagebreak:    { mode: ['css', 'legacy'] } // Respetar page-break-after de CSS
         };
 
-        // Ejecutar html2pdf
+        // Ejecutar html2pdf pasando la cadena de texto HTML directamente
         html2pdf()
             .set(opt)
-            .from(renderArea)
+            .from(documentHtml)
             .save()
             .then(() => {
-                // Limpiar render area
-                renderArea.innerHTML = "";
                 showSuccessScreen(defaultFilename, emails.length);
                 resolve();
             })
             .catch((err) => {
-                renderArea.innerHTML = "";
                 reject(err);
             });
     });

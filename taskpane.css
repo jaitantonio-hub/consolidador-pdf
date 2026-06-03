@@ -500,19 +500,17 @@ body {
    Área Oculta de Impresión de PDF (Clásica y Formal)
    ========================================================================== */
 .pdf-render-area {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 800px; /* Ancho de renderizado aproximado a A4/Carta */
-    z-index: -1; /* Detrás de la interfaz de la aplicación principal */
-    background-color: #ffffff;
-    color: #000000;
-    font-family: "Segoe UI", Arial, sans-serif;
+    display: none !important; /* Ya no se requiere en el layout de pantalla */
 }
 
 /* Contenedor del PDF */
 .pdf-document {
+    width: 800px; /* Ancho de renderizado fijo para evitar recortes lateralmente */
+    background-color: #ffffff;
+    color: #000000;
+    font-family: "Segoe UI", Arial, sans-serif;
     padding: 30px; /* Margen elegante de impresión */
+    box-sizing: border-box;
 }
 
 /* Bloque individual de Correo */
