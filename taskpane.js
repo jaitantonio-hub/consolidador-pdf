@@ -543,50 +543,6 @@ function generateUnifiedPDF(emails) {
         html2pdf()
             .set(opt)
             .from(documentHtml)
-            .toPdf()
-            .get('pdf')
-            .then((pdf) => {
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                
-                // Obtener fecha y hora actual en formato español (Colombia/Latinoamérica)
-                const generationDateStr = new Date().toLocaleString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-                
-                // Obtener correo del usuario
-                const userEmail = isSimulationMode ? "jaime.tarazona@outlook.com" : (Office.context.mailbox.userProfile ? Office.context.mailbox.userProfile.emailAddress : "usuario@outlook.com");
-
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    
-                    // Configurar estilo del texto
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setFontSize(8);
-                    pdf.setTextColor(100, 100, 100);
-                    
-                    // Dibujar Encabezado a 12.7 mm (0.5 pulgadas) del borde superior
-                    // Fecha y hora a la izquierda (alineado con margen de 25.4 mm)
-                    pdf.text(generationDateStr, 25.4, 12.7);
-                    // Correo de origen a la derecha (alineado con margen de 25.4 mm)
-                    pdf.text(`Origen: ${userEmail}`, pageWidth - 25.4, 12.7, { align: 'right' });
-                    
-                    // Dibujar línea fina debajo del encabezado (a 15 mm del borde superior)
-                    pdf.setDrawColor(220, 220, 220);
-                    pdf.setLineWidth(0.2);
-                    pdf.line(25.4, 15, pageWidth - 25.4, 15);
-                    
-                    // Dibujar Pie de página a 12.7 mm (0.5 pulgadas) del borde inferior
-                    const footerText = `Página ${i} de ${totalPages}`;
-                    pdf.text(footerText, pageWidth - 25.4, pageHeight - 12.7, { align: 'right' });
-                }
-            })
             .save()
             .then(() => {
                 showSuccessScreen(defaultFilename, emails.length);
