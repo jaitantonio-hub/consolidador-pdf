@@ -1,0 +1,626 @@
+/* taskpane.css */
+
+/* ==========================================================================
+   Variables de Diseño (Tema Premium Profesional)
+   ========================================================================== */
+:root {
+    --primary-color: #0078d4;      /* Azul clásico de Outlook */
+    --primary-hover: #106ebe;      /* Azul más oscuro para hover */
+    --primary-light: #eff6fc;      /* Fondo azul muy suave */
+    --bg-color: #f3f2f1;           /* Fondo gris claro oficial de Office */
+    --panel-bg: #ffffff;           /* Fondo de contenedores blancos */
+    --text-main: #323130;          /* Texto principal oscuro */
+    --text-secondary: #605e5c;     /* Texto secundario gris */
+    --border-color: #edebe9;       /* Bordes grises muy suaves */
+    --alert-warning-bg: #fff4ce;   /* Fondo alerta advertencia */
+    --alert-warning-text: #794500; /* Texto alerta advertencia */
+    --alert-info-bg: #f3f2f1;
+    --alert-info-text: #0078d4;
+    --success-color: #107c41;      /* Verde éxito corporativo */
+    --success-bg: #dff6dd;         /* Verde fondo suave */
+    --danger-color: #a80000;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --transition-fast: all 0.2s ease;
+}
+
+/* ==========================================================================
+   Reset y Estilos Generales
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--text-main);
+    background-color: var(--bg-color);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Estructura del Panel de Tareas (Taskpane)
+   ========================================================================== */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+/* Encabezado */
+.app-header {
+    background: linear-gradient(135deg, #005a9e 0%, #0078d4 100%);
+    color: #ffffff;
+    padding: 20px 16px 16px 16px;
+    border-bottom: 3px solid #004578;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.pdf-icon {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
+}
+
+.app-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.tagline {
+    font-size: 11px;
+    opacity: 0.85;
+    font-weight: 400;
+}
+
+/* Cuerpo */
+.app-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.view-section {
+    background-color: var(--panel-bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Footer */
+.app-footer {
+    padding: 12px 16px;
+    text-align: center;
+    background-color: var(--panel-bg);
+    border-top: 1px solid var(--border-color);
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Sección de Selección
+   ========================================================================== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.section-header h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.badge {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Contenedor de lista de correos */
+.email-list-container {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Estado Vacío */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 8px;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    opacity: 0.4;
+}
+
+.empty-state p {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-main);
+}
+
+.empty-state small {
+    font-size: 11px;
+}
+
+/* Tarjetas de Correos (Items en la lista) */
+.email-item-card {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: var(--transition-fast);
+}
+
+.email-item-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-color: #d0d0d0;
+}
+
+.email-item-subject {
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+}
+
+.email-item-sender {
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-item-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 4px;
+}
+
+/* Panel de Opciones */
+.options-panel {
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+}
+
+/* Toggle Switch Estilizado */
+.switch-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    gap: 10px;
+    color: var(--text-secondary);
+    width: 100%;
+}
+
+.switch-container input {
+    display: none;
+}
+
+.slider {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: .4s;
+    flex-shrink: 0;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+.switch-container input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+.switch-container input:checked + .slider:before {
+    transform: translateX(16px);
+}
+
+.option-label {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   Alertas y Botones
+   ========================================================================== */
+.alert {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.alert-warning {
+    background-color: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+    border-left: 4px solid #ffb900;
+}
+
+.alert-info {
+    background-color: var(--primary-light);
+    color: #005a9e;
+    border-left: 4px solid var(--primary-color);
+}
+
+.alert-danger {
+    background-color: #fde7e9;
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Botones */
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition-fast);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 120, 212, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+.btn-primary:disabled {
+    background-color: #c8c6c4;
+    color: #a19f9d;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background-color: #f3f2f1;
+    color: var(--text-main);
+    border: 1px solid #8a8886;
+}
+
+.btn-secondary:hover {
+    background-color: #edebe9;
+}
+
+/* ==========================================================================
+   Pantallas de Carga y Éxito
+   ========================================================================== */
+
+/* Spinner de carga */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px 10px;
+    gap: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 120, 212, 0.1);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loader-container h3 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.loader-container p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Barra de Progreso */
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background-color: #edebe9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+#progress-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Éxito */
+.success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 8px;
+    gap: 16px;
+}
+
+.success-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background-color: var(--success-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--success-color);
+}
+
+.success-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.success-container h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--success-color);
+}
+
+.success-container p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.success-summary {
+    width: 100%;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary-row strong {
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+/* ==========================================================================
+   Área Oculta de Impresión de PDF (Clásica y Formal)
+   ========================================================================== */
+.pdf-render-area {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 800px; /* Ancho de renderizado aproximado a A4 */
+    background-color: #ffffff;
+    color: #000000;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Contenedor del PDF */
+.pdf-document {
+    padding: 20px;
+}
+
+/* Bloque individual de Correo */
+.pdf-email-block {
+    background-color: #ffffff;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: #000000;
+    /* Salto de página forzado */
+    page-break-after: always;
+    break-after: page;
+}
+
+/* Quitar el salto de página en el último correo si lo desea el usuario */
+.pdf-email-block:last-child {
+    page-break-after: auto;
+    break-after: auto;
+}
+
+/* Cabecera de Correo en el PDF (Estilo Clásico Imprimir de Outlook) */
+.pdf-email-header {
+    border-bottom: 1.5px solid #000000;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.pdf-email-subject {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #000000;
+}
+
+.pdf-email-meta-row {
+    margin-bottom: 4px;
+    font-size: 12.5px;
+}
+
+.pdf-email-meta-label {
+    font-weight: 700;
+    display: inline-block;
+    width: 65px;
+}
+
+/* Estilo para los adjuntos en el PDF */
+.pdf-attachments-list {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background-color: #f3f2f1;
+    border: 1.5px solid #a19f9d;
+    border-radius: 2px;
+    font-size: 11px;
+    display: inline-block;
+    max-width: 100%;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.pdf-attachments-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+
+.pdf-attachment-item {
+    display: inline-block;
+    margin-right: 12px;
+    color: #323130;
+}
+
+.pdf-attachment-name {
+    text-decoration: underline;
+}
+
+.pdf-attachment-size {
+    color: #605e5c;
+}
+
+/* Cuerpo del correo en el PDF */
+.pdf-email-body {
+    padding-top: 8px;
+    word-wrap: break-word;
+    font-size: 13px;
+}
+
+/* Estilos de impresión para forzar limpieza y compatibilidad */
+@media print {
+    .pdf-email-block {
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    .pdf-email-header {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* ==========================================================================
+   Animaciones
+   ========================================================================== */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}

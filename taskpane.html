@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolidador de Correos a PDF</title>
+    
+    <!-- SDK de Office.js (Requerido para complementos de Outlook) -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    
+    <!-- Librería html2pdf local (Descargada con download_libs.ps1) -->
+    <script src="lib/html2pdf.bundle.min.js"></script>
+    
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="taskpane.css">
+    
+    <!-- Fuente premium Inter desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lógica de control del complemento -->
+    <script src="taskpane.js" defer></script>
+</head>
+<body class="ms-font-m">
+    <div class="app-container">
+        <!-- Encabezado de la App -->
+        <header class="app-header">
+            <div class="logo-container">
+                <svg class="pdf-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 12V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 10L12 7L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 16H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>Consolidador PDF</h1>
+            </div>
+            <p class="tagline">Consolida tu bandeja en un solo clic</p>
+        </header>
+
+        <!-- Contenedor Principal de Vistas -->
+        <main class="app-body">
+            <!-- Sección de Simulación (solo visible fuera de Outlook) -->
+            <div id="mock-banner" class="alert alert-info hidden">
+                <strong>Modo Simulación:</strong> Ejecutándose fuera de Outlook. Puedes probar el diseño y la descarga con correos de prueba.
+            </div>
+
+            <!-- 1. VISTA DE SELECCIÓN (Lista de correos seleccionados) -->
+            <section id="selection-view" class="view-section">
+                <div class="section-header">
+                    <h2>Correos Seleccionados</h2>
+                    <span id="selected-count" class="badge">0</span>
+                </div>
+
+                <!-- Lista de correos seleccionados (Populado por JS) -->
+                <div id="email-list" class="email-list-container">
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 8L10.8906 13.2604C11.5624 13.7083 12.4376 13.7083 13.1094 13.2604L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p>Ningún correo seleccionado</p>
+                        <small>Marca las casillas de verificación de hasta 5 correos en la bandeja de entrada para comenzar.</small>
+                    </div>
+                </div>
+
+                <!-- Alertas de límites o avisos -->
+                <div id="limit-warning" class="alert alert-warning hidden">
+                    <strong>¡Límite excedido!</strong> Has seleccionado más de 5 correos. Para garantizar un documento visualmente correcto, reduce tu selección a un máximo de 5 correos.
+                </div>
+
+                <!-- Opciones de Configuración Rápida -->
+                <div id="options-panel" class="options-panel hidden">
+                    <div class="option-row">
+                        <label class="switch-container">
+                            <input type="checkbox" id="opt-page-break" checked>
+                            <span class="slider"></span>
+                            <span class="option-label">Salto de página por correo</span>
+                        </label>
+                    </div>
+                    <div class="option-row">
+                        <label class="switch-container">
+                            <input type="checkbox" id="opt-show-attachments" checked>
+                            <span class="slider"></span>
+                            <span class="option-label">Mostrar nombres de adjuntos</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botón de Acción Principal -->
+                <button id="btn-consolidate" class="btn btn-primary" disabled>
+                    <span class="btn-text">Consolidar a PDF</span>
+                    <span class="btn-icon">→</span>
+                </button>
+            </section>
+
+            <!-- 2. VISTA DE CARGA (Procesando PDF) -->
+            <section id="loading-view" class="view-section hidden">
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <h3 id="loader-title">Procesando bandeja...</h3>
+                    <p id="loader-desc">Extrayendo el contenido de los correos seleccionados.</p>
+                    
+                    <div class="progress-bar-container">
+                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="progress-text">0 / 0 completados</span>
+                </div>
+            </section>
+
+            <!-- 3. VISTA DE ÉXITO (PDF Descargado) -->
+            <section id="success-view" class="view-section hidden">
+                <div class="success-container">
+                    <div class="success-icon-wrapper">
+                        <svg class="success-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>¡PDF Unificado Generado!</h3>
+                    <p>La descarga se ha iniciado. Escribe el nombre final del archivo y elige la carpeta de destino en la ventana del sistema.</p>
+                    
+                    <div class="success-summary">
+                        <div class="summary-row">
+                            <span>Archivo generado:</span>
+                            <strong id="pdf-filename">correos_consolidados.pdf</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Correos incluidos:</span>
+                            <strong id="pdf-count">0</strong>
+                        </div>
+                    </div>
+
+                    <button id="btn-back" class="btn btn-secondary">Consolidar otro lote</button>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p>Versión 1.0.0 | Desarrollado en Edge</p>
+        </footer>
+    </div>
+
+    <!-- 
+      Área Oculta de Renderizado para PDF.
+      Se coloca fuera de la pantalla (left: -9999px) para que tenga dimensiones físicas
+      y html2pdf/html2canvas lo rendericen a escala real sin ser visible en la interfaz del usuario.
+    -->
+    <div id="pdf-render-area" class="pdf-render-area"></div>
+</body>
+</html>
