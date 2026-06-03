@@ -416,10 +416,14 @@ function generateUnifiedPDF(emails) {
         let documentHtml = `<div class="pdf-document">`;
 
         emails.forEach((email, index) => {
-            // Con el nuevo enfoque, el salto se hace ANTES de cada correo a partir del segundo
             const isFirst = index === 0;
-            const breakClass = (!isFirst && usePageBreak) ? "pdf-page-break-before" : "";
-            const blockClass = `pdf-email-block ${breakClass}`.trim();
+            
+            // Inyectar el helper oficial html2pdf__page-break antes de cada correo (excepto el primero)
+            if (!isFirst && usePageBreak) {
+                documentHtml += `<div class="html2pdf__page-break"></div>`;
+            }
+
+            const blockClass = "pdf-email-block";
 
             documentHtml += `
                 <div class="${blockClass}" style="margin-bottom: 30px;">
@@ -531,8 +535,7 @@ function generateUnifiedPDF(emails) {
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
             pagebreak:    { 
-                mode: ['css', 'legacy'], 
-                before: '.pdf-page-break-before' 
+                mode: ['css', 'legacy']
             }
         };
 

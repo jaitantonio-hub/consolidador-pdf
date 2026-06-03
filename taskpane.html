@@ -68,22 +68,10 @@
                     <strong>¡Límite excedido!</strong> Has seleccionado más de 100 correos. Para garantizar un rendimiento óptimo, reduce tu selección a un máximo de 100 correos.
                 </div>
 
-                <!-- Opciones de Configuración Rápida -->
-                <div id="options-panel" class="options-panel hidden">
-                    <div class="option-row">
-                        <label class="switch-container">
-                            <input type="checkbox" id="opt-page-break" checked>
-                            <span class="slider"></span>
-                            <span class="option-label">Salto de página por correo</span>
-                        </label>
-                    </div>
-                    <div class="option-row">
-                        <label class="switch-container">
-                            <input type="checkbox" id="opt-show-attachments" checked>
-                            <span class="slider"></span>
-                            <span class="option-label">Mostrar nombres de adjuntos</span>
-                        </label>
-                    </div>
+                <!-- Contenedor oculto para conservar referencias de opciones siempre activas -->
+                <div id="options-panel" style="display: none !important;">
+                    <input type="checkbox" id="opt-page-break" checked>
+                    <input type="checkbox" id="opt-show-attachments" checked>
                 </div>
 
                 <!-- Botón de Acción Principal -->
