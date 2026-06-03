@@ -523,6 +523,12 @@ body {
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
+/* Forzar salto de página antes del bloque */
+.pdf-page-break-before {
+    break-before: page;
+    page-break-before: always;
+}
+
 /* Marca de Outlook estilo Impresión */
 .pdf-outlook-brand {
     display: flex;

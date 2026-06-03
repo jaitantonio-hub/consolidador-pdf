@@ -416,12 +416,13 @@ function generateUnifiedPDF(emails) {
         let documentHtml = `<div class="pdf-document">`;
 
         emails.forEach((email, index) => {
-            // Aplicar estilo de salto de página solo si se seleccionó la opción y no es el último correo
-            const isLast = index === emails.length - 1;
-            const blockClass = (!isLast && usePageBreak) ? "pdf-email-block" : "pdf-email-block pdf-no-page-break";
+            // Con el nuevo enfoque, el salto se hace ANTES de cada correo a partir del segundo
+            const isFirst = index === 0;
+            const breakClass = (!isFirst && usePageBreak) ? "pdf-page-break-before" : "";
+            const blockClass = `pdf-email-block ${breakClass}`.trim();
 
             documentHtml += `
-                <div class="${blockClass}" style="${(!isLast && usePageBreak) ? 'page-break-after: always; break-after: page; margin-bottom: 30px;' : ''}">
+                <div class="${blockClass}" style="margin-bottom: 30px;">
                     <!-- Cabecera Oficial Outlook -->
                     <div class="pdf-outlook-brand">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
@@ -529,7 +530,10 @@ function generateUnifiedPDF(emails) {
                 windowWidth: 800    // Forzar ancho virtual de 800px
             },
             jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-            pagebreak:    { mode: ['css', 'legacy'] } // Respetar page-break-after de CSS
+            pagebreak:    { 
+                mode: ['css', 'legacy'], 
+                before: '.pdf-page-break-before' 
+            }
         };
 
         // Ejecutar html2pdf pasando la cadena de texto HTML directamente
