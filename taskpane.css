@@ -643,3 +643,9 @@ body {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Forzar el ancho del contenedor temporal creado por html2pdf en OWA */
+.html2pdf__container {
+    width: 800px !important;
+    max-width: 800px !important;
+}

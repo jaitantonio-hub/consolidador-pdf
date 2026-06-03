@@ -518,7 +518,7 @@ function generateUnifiedPDF(emails) {
 
         // Opciones de configuración para html2pdf
         const opt = {
-            margin:       [20, 15, 20, 15], // Márgenes en mm: arriba, izquierda, abajo, derecha
+            margin:       25.4, // Margen Norma APA (7ª Edición): 2.54 cm (1 pulgada) en todos los bordes
             filename:     defaultFilename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -564,20 +564,20 @@ function generateUnifiedPDF(emails) {
                     pdf.setFontSize(8);
                     pdf.setTextColor(100, 100, 100);
                     
-                    // Dibujar Encabezado (y = 12)
-                    // Fecha y hora a la izquierda
-                    pdf.text(generationDateStr, 15, 12);
-                    // Correo de origen a la derecha
-                    pdf.text(`Origen: ${userEmail}`, pageWidth - 15, 12, { align: 'right' });
+                    // Dibujar Encabezado a 12.7 mm (0.5 pulgadas) del borde superior
+                    // Fecha y hora a la izquierda (alineado con margen de 25.4 mm)
+                    pdf.text(generationDateStr, 25.4, 12.7);
+                    // Correo de origen a la derecha (alineado con margen de 25.4 mm)
+                    pdf.text(`Origen: ${userEmail}`, pageWidth - 25.4, 12.7, { align: 'right' });
                     
-                    // Dibujar línea fina debajo del encabezado
+                    // Dibujar línea fina debajo del encabezado (a 15 mm del borde superior)
                     pdf.setDrawColor(220, 220, 220);
                     pdf.setLineWidth(0.2);
-                    pdf.line(15, 14, pageWidth - 15, 14);
+                    pdf.line(25.4, 15, pageWidth - 25.4, 15);
                     
-                    // Dibujar Pie de página (y = pageHeight - 12)
+                    // Dibujar Pie de página a 12.7 mm (0.5 pulgadas) del borde inferior
                     const footerText = `Página ${i} de ${totalPages}`;
-                    pdf.text(footerText, pageWidth - 15, pageHeight - 12, { align: 'right' });
+                    pdf.text(footerText, pageWidth - 25.4, pageHeight - 12.7, { align: 'right' });
                 }
             })
             .save()
