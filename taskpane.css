@@ -502,7 +502,7 @@ body {
 .pdf-render-area {
     position: fixed;
     top: 0;
-    left: -9999px;
+    left: 0;
     width: 624px;
     background-color: #ffffff;
     color: #000000;
