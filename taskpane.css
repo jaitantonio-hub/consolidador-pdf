@@ -500,14 +500,11 @@ body {
    Área Oculta de Impresión de PDF (Clásica y Formal)
    ========================================================================== */
 .pdf-render-area {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: relative;
     width: 624px;
     background-color: #ffffff;
     color: #000000;
     font-family: "Segoe UI", Arial, sans-serif;
-    z-index: -9999;
 }
 
 /* Contenedor del PDF */

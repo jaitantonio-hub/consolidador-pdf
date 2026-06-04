@@ -130,9 +130,11 @@
 
     <!-- 
       Área Oculta de Renderizado para PDF.
-      Se coloca fuera de la pantalla (left: -9999px) para que tenga dimensiones físicas
-      y html2pdf/html2canvas lo rendericen a escala real sin ser visible en la interfaz del usuario.
+      Se coloca dentro de un contenedor con altura 0 y desbordamiento oculto para que sea invisible al usuario,
+      pero mantiene un layout estándar (position: relative) en coordenadas reales para html2canvas.
     -->
-    <div id="pdf-render-area" class="pdf-render-area"></div>
+    <div style="height: 0; overflow: hidden;">
+        <div id="pdf-render-area" class="pdf-render-area"></div>
+    </div>
 </body>
 </html>
